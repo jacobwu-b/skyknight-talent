@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSessionUser } from "@/lib/auth";
-import { listExecutives } from "@/lib/executives";
+import { listExecutives, searchExecutives } from "@/lib/executives";
 
 export const dynamic = "force-dynamic";
 
@@ -10,16 +10,30 @@ const PAGE_SIZE = 25;
 export default async function ExecutivesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; q?: string }>;
 }) {
   const user = await getSessionUser();
   if (!user) redirect("/");
 
-  const { page: pageParam } = await searchParams;
-  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const { page: pageParam, q } = await searchParams;
+  const query = q?.trim() ?? "";
 
-  const { executives, total } = await listExecutives(page, PAGE_SIZE);
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  let executives;
+  let total: number;
+  let totalPages = 1;
+  let page = 1;
+
+  if (query) {
+    const results = await searchExecutives(query);
+    executives = results;
+    total = results.length;
+  } else {
+    page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+    const result = await listExecutives(page, PAGE_SIZE);
+    executives = result.executives;
+    total = result.total;
+    totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  }
 
   return (
     <div className="page-shell">
@@ -36,13 +50,42 @@ export default async function ExecutivesPage({
         </div>
       </div>
 
+      <div className="list-toolbar">
+        <form method="GET" className="search-form">
+          <input
+            type="search"
+            name="q"
+            defaultValue={query}
+            placeholder="Search by name, role, or tag…"
+            className="search-input"
+          />
+          <button type="submit" className="search-btn">Search</button>
+          {query && (
+            <Link href="/executives" className="search-clear">
+              Clear
+            </Link>
+          )}
+        </form>
+        <Link href="/executives/new" className="btn-primary">
+          + New Executive
+        </Link>
+      </div>
+
       <div className="list-meta">
-        <span className="list-count">{total} executive{total !== 1 ? "s" : ""}</span>
+        {query ? (
+          <span className="list-count">
+            {total} result{total !== 1 ? "s" : ""} for &ldquo;{query}&rdquo;
+          </span>
+        ) : (
+          <span className="list-count">
+            {total} executive{total !== 1 ? "s" : ""}
+          </span>
+        )}
       </div>
 
       {executives.length === 0 ? (
         <div className="empty-state">
-          <p>No executives yet.</p>
+          <p>{query ? "No executives match that search." : "No executives yet."}</p>
         </div>
       ) : (
         <>
@@ -71,7 +114,7 @@ export default async function ExecutivesPage({
             </tbody>
           </table>
 
-          {totalPages > 1 && (
+          {!query && totalPages > 1 && (
             <div className="pagination">
               {page > 1 && (
                 <Link

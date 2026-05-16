@@ -57,6 +57,7 @@ export const executives = pgTable(
     linkedinUrl: text("linkedin_url"),
     currentRole: text("current_role"),
     notes: text("notes"),
+    tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -75,6 +76,7 @@ export const executives = pgTable(
       "gin",
       sql`${t.currentRole} gin_trgm_ops`,
     ),
+    index("executives_tags_gin_idx").using("gin", t.tags),
   ],
 );
 
