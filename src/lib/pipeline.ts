@@ -1,6 +1,6 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { asc, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "./db";
-import { executives, pipelineEntries, users } from "./db/schema";
+import { executives, pipelineEntries, searches, users } from "./db/schema";
 
 // Comp fields — present only in partner-role responses (spec 0005 / ADR-0003).
 export type CompFields = {
@@ -50,6 +50,22 @@ export type PipelineEntryRow = {
 export type PartnerPipelineEntryRow = PipelineEntryRow & CompFields;
 
 export type UpdatePipelineEntryCompInput = Partial<CompFields>;
+
+export type ExecutivePipelineEntryRow = {
+  id: string;
+  searchId: string;
+  portfolioCompany: string;
+  roleTitle: string;
+  stage: PipelineStage;
+  ownerId: string;
+  ownerName: string;
+  ownerRole: "partner" | "associate";
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type PartnerExecutivePipelineEntryRow = ExecutivePipelineEntryRow &
+  CompFields;
 
 export type OwnerOption = {
   id: string;
@@ -135,6 +151,47 @@ function redactComp(row: PartnerPipelineEntryRow): PipelineEntryRow {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { baseSalaryCents, targetBonusCents, equityBps, ...rest } = row;
   return rest;
+}
+
+function redactExecComp(
+  row: PartnerExecutivePipelineEntryRow,
+): ExecutivePipelineEntryRow {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { baseSalaryCents, targetBonusCents, equityBps, ...rest } = row;
+  return rest;
+}
+
+export async function listSearchEntriesForExecutive(
+  executiveId: string,
+  requestingRole: "partner" | "associate",
+): Promise<PartnerExecutivePipelineEntryRow[] | ExecutivePipelineEntryRow[]> {
+  const db = getDb();
+  const rows = await db
+    .select({
+      id: pipelineEntries.id,
+      searchId: pipelineEntries.searchId,
+      portfolioCompany: searches.portfolioCompany,
+      roleTitle: searches.roleTitle,
+      stage: pipelineEntries.stage,
+      ownerId: pipelineEntries.ownerId,
+      ownerName: users.name,
+      ownerRole: users.role,
+      createdAt: pipelineEntries.createdAt,
+      updatedAt: pipelineEntries.updatedAt,
+      baseSalaryCents: pipelineEntries.baseSalaryCents,
+      targetBonusCents: pipelineEntries.targetBonusCents,
+      equityBps: pipelineEntries.equityBps,
+    })
+    .from(pipelineEntries)
+    .innerJoin(searches, eq(pipelineEntries.searchId, searches.id))
+    .innerJoin(users, eq(pipelineEntries.ownerId, users.id))
+    .where(eq(pipelineEntries.executiveId, executiveId))
+    .orderBy(desc(pipelineEntries.updatedAt));
+
+  if (requestingRole === "partner") {
+    return rows as PartnerExecutivePipelineEntryRow[];
+  }
+  return rows.map(redactExecComp);
 }
 
 export async function createPipelineEntry(

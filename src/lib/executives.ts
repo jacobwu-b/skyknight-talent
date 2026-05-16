@@ -1,6 +1,6 @@
 import { desc, eq, ilike, or, sql } from "drizzle-orm";
 import { getDb } from "./db";
-import { executives } from "./db/schema";
+import { executives, executiveInteractions, users } from "./db/schema";
 
 export type Executive = typeof executives.$inferSelect;
 
@@ -166,6 +166,41 @@ export async function searchExecutives(
     )
     .orderBy(desc(executives.updatedAt))
     .limit(50);
+}
+
+export type InteractionRow = {
+  id: string;
+  direction: "inbound" | "outbound";
+  occurredAt: Date;
+  subject: string | null;
+  bodyExcerpt: string | null;
+  senderId: string | null;
+  senderName: string | null;
+};
+
+export async function listInteractionsForExecutive(
+  executiveId: string,
+  limit: number,
+): Promise<{ interactions: InteractionRow[]; hasMore: boolean }> {
+  const db = getDb();
+  const rows = await db
+    .select({
+      id: executiveInteractions.id,
+      direction: executiveInteractions.direction,
+      occurredAt: executiveInteractions.occurredAt,
+      subject: executiveInteractions.subject,
+      bodyExcerpt: executiveInteractions.bodyExcerpt,
+      senderId: executiveInteractions.senderId,
+      senderName: users.name,
+    })
+    .from(executiveInteractions)
+    .leftJoin(users, eq(executiveInteractions.senderId, users.id))
+    .where(eq(executiveInteractions.executiveId, executiveId))
+    .orderBy(desc(executiveInteractions.occurredAt))
+    .limit(limit + 1);
+
+  const hasMore = rows.length > limit;
+  return { interactions: rows.slice(0, limit), hasMore };
 }
 
 function isDuplicateKeyError(err: unknown): boolean {

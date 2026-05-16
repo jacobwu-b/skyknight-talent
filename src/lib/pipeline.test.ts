@@ -8,6 +8,7 @@ import {
   listAllExecutives,
   listUsersForOwnerSelect,
   listPipelineEntriesForSearch,
+  listSearchEntriesForExecutive,
   createPipelineEntry,
   updatePipelineEntryStage,
   updatePipelineEntryOwner,
@@ -15,7 +16,11 @@ import {
   groupPipelineEntriesByStage,
   PIPELINE_STAGES,
 } from "./pipeline";
-import type { PipelineEntryRow, PartnerPipelineEntryRow } from "./pipeline";
+import type {
+  PipelineEntryRow,
+  PartnerPipelineEntryRow,
+  PartnerExecutivePipelineEntryRow,
+} from "./pipeline";
 import { getDb } from "./db";
 
 const mockGetDb = vi.mocked(getDb);
@@ -433,5 +438,112 @@ describe("updatePipelineEntryComp", () => {
     );
 
     expect(result).toEqual({ ok: false, error: "not_found" });
+  });
+});
+
+const SEARCH_ID_2 = "00000000-0000-4000-8000-000000000006";
+
+const EXEC_PIPELINE_ROW = {
+  id: ENTRY_ID,
+  searchId: SEARCH_ID,
+  portfolioCompany: "Acme Ventures",
+  roleTitle: "CFO",
+  stage: "screening" as const,
+  ownerId: OWNER_ID,
+  ownerName: "Jane Partner",
+  ownerRole: "partner" as const,
+  createdAt: new Date("2024-03-01T10:00:00Z"),
+  updatedAt: new Date("2024-03-15T10:00:00Z"),
+  baseSalaryCents: 35000000,
+  targetBonusCents: 5000000,
+  equityBps: 150,
+};
+
+describe("listSearchEntriesForExecutive", () => {
+  it("returns pipeline entries across searches for the given executive (partner)", async () => {
+    const chain = makeSelectChain([EXEC_PIPELINE_ROW]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const result = await listSearchEntriesForExecutive(EXEC_ID, "partner");
+
+    expect(result).toHaveLength(1);
+    expect(result[0].portfolioCompany).toBe("Acme Ventures");
+    expect(result[0].roleTitle).toBe("CFO");
+    expect(result[0].stage).toBe("screening");
+    expect(chain.where).toHaveBeenCalled();
+  });
+
+  it("partner response includes all three comp fields with their values", async () => {
+    const chain = makeSelectChain([EXEC_PIPELINE_ROW]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const result = await listSearchEntriesForExecutive(EXEC_ID, "partner");
+    const entry = result[0] as PartnerExecutivePipelineEntryRow;
+
+    expect(entry.baseSalaryCents).toBe(35000000);
+    expect(entry.targetBonusCents).toBe(5000000);
+    expect(entry.equityBps).toBe(150);
+  });
+
+  it("associate response omits comp keys entirely — not nulled", async () => {
+    const chain = makeSelectChain([EXEC_PIPELINE_ROW]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const result = await listSearchEntriesForExecutive(EXEC_ID, "associate");
+    const entry = result[0];
+
+    expect("baseSalaryCents" in entry).toBe(false);
+    expect("targetBonusCents" in entry).toBe(false);
+    expect("equityBps" in entry).toBe(false);
+  });
+
+  it("associate response contains no trace of known comp fixture values in serialised form", async () => {
+    const secondRow = {
+      ...EXEC_PIPELINE_ROW,
+      id: "00000000-0000-4000-8000-000000000010",
+      searchId: SEARCH_ID_2,
+      portfolioCompany: "Beta Capital",
+      baseSalaryCents: 42000000,
+      targetBonusCents: 7000000,
+      equityBps: 200,
+    };
+    const chain = makeSelectChain([EXEC_PIPELINE_ROW, secondRow]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const result = await listSearchEntriesForExecutive(EXEC_ID, "associate");
+    const serialised = JSON.stringify(result);
+
+    expect(serialised).not.toContain("35000000");
+    expect(serialised).not.toContain("42000000");
+    expect(serialised).not.toContain("5000000");
+    expect(serialised).not.toContain("7000000");
+    expect(serialised).not.toContain("150");
+    expect(serialised).not.toContain("200");
+  });
+
+  it("returns empty array when executive has no pipeline entries", async () => {
+    const chain = makeSelectChain([]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const result = await listSearchEntriesForExecutive(EXEC_ID, "partner");
+
+    expect(result).toEqual([]);
+  });
+
+  it("returns entries from multiple searches for the same executive", async () => {
+    const secondRow = {
+      ...EXEC_PIPELINE_ROW,
+      id: "00000000-0000-4000-8000-000000000010",
+      searchId: SEARCH_ID_2,
+      portfolioCompany: "Beta Capital",
+    };
+    const chain = makeSelectChain([EXEC_PIPELINE_ROW, secondRow]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const result = await listSearchEntriesForExecutive(EXEC_ID, "partner");
+
+    expect(result).toHaveLength(2);
+    expect(result[0].portfolioCompany).toBe("Acme Ventures");
+    expect(result[1].portfolioCompany).toBe("Beta Capital");
   });
 });
