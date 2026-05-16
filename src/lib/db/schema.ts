@@ -1,6 +1,7 @@
 import {
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -179,5 +180,29 @@ export const executiveInteractions = pgTable(
       t.senderRole,
       t.occurredAt,
     ),
+  ],
+);
+
+export const unmatchedInbound = pgTable(
+  "unmatched_inbound",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    postmarkMessageId: text("postmark_message_id").notNull(),
+    fromAddress: text("from_address").notNull(),
+    toAddresses: text("to_addresses").array().notNull(),
+    subject: text("subject"),
+    bodyExcerpt: text("body_excerpt"),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+    rawPayload: jsonb("raw_payload").notNull(),
+    status: text("status").notNull().default("pending"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("unmatched_inbound_postmark_message_id_unique").on(
+      t.postmarkMessageId,
+    ),
+    index("unmatched_inbound_created_at_idx").on(t.createdAt.desc()),
   ],
 );
