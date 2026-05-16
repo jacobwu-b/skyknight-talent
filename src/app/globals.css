@@ -675,6 +675,15 @@ body {
 }
 
 /* ── Pipeline add form ── */
+.pipeline-stage-heading {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
 .pipeline-add-form {
   border: 1px solid var(--border);
   border-radius: 10px;

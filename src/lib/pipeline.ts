@@ -161,6 +161,31 @@ export async function updatePipelineEntryOwner(
   return { ok: true };
 }
 
+export type GroupedPipelineEntries = {
+  stage: PipelineStage;
+  label: string;
+  entries: PipelineEntryRow[];
+}[];
+
+export function groupPipelineEntriesByStage(
+  entries: PipelineEntryRow[],
+): GroupedPipelineEntries {
+  const byStage = new Map<PipelineStage, PipelineEntryRow[]>();
+  for (const entry of entries) {
+    const group = byStage.get(entry.stage);
+    if (group) {
+      group.push(entry);
+    } else {
+      byStage.set(entry.stage, [entry]);
+    }
+  }
+  return PIPELINE_STAGES.filter((s) => byStage.has(s)).map((s) => ({
+    stage: s,
+    label: PIPELINE_STAGE_LABELS[s],
+    entries: byStage.get(s)!,
+  }));
+}
+
 function isDuplicateKeyError(err: unknown): boolean {
   const hasCode23505 = (e: unknown): boolean =>
     typeof e === "object" &&
