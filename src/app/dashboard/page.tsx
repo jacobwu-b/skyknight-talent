@@ -33,6 +33,7 @@ export default async function DashboardPage() {
 
       <nav className="nav-list">
         <Link href="/executives" className="nav-card">Executives →</Link>
+        <Link href="/searches" className="nav-card">Searches →</Link>
       </nav>
     </div>
   );
