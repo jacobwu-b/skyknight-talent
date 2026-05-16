@@ -31,6 +31,19 @@ This repo is built for human + AI collaboration. The operating model is document
 
 TBD — see companion architecture design document referenced in [`PRD.md` §10](./PRD.md#10-open-questions).
 
+## Database
+
+Schema lives in [`src/lib/db/schema.ts`](./src/lib/db/schema.ts); migrations in [`db/migrations/`](./db/migrations/).
+
+```bash
+pnpm db:generate   # diff schema → new migration sql
+pnpm db:migrate    # apply pending migrations
+pnpm db:rollback   # apply the latest .down.sql sibling
+pnpm db:seed       # populate dev data (idempotent)
+```
+
+Requires `DATABASE_URL` in the environment. The `pg_trgm` extension is created by the initial migration.
+
 ## License
 
 Copyright (c) 2026 Zhengyuan Wu. All Rights Reserved.
