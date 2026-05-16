@@ -264,7 +264,6 @@ export default async function SearchDetailPage({
                                       className="form-input"
                                       style={{ width: "7rem" }}
                                       min={0}
-                                      step={1000}
                                     />
                                     <input
                                       type="number"
@@ -278,7 +277,6 @@ export default async function SearchDetailPage({
                                       className="form-input"
                                       style={{ width: "7rem" }}
                                       min={0}
-                                      step={1000}
                                     />
                                     <input
                                       type="number"
