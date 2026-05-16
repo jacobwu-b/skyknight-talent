@@ -13,12 +13,12 @@ import {
 const U = (n: number) => `00000000-0000-4000-8000-${n.toString().padStart(12, "0")}`;
 
 const userRows = [
-  { id: U(1), name: "Aiko Tanaka", role: "partner" as const },
-  { id: U(2), name: "Ravi Patel", role: "partner" as const },
-  { id: U(3), name: "Eleanor Cho", role: "partner" as const },
-  { id: U(4), name: "Diego Hernández", role: "associate" as const },
-  { id: U(5), name: "Priya Shah", role: "associate" as const },
-  { id: U(6), name: "Marcus Bell", role: "associate" as const },
+  { id: U(1), name: "Aiko Tanaka", role: "partner" as const, avatarUrl: "/avatars/1.svg" },
+  { id: U(2), name: "Ravi Patel", role: "partner" as const, avatarUrl: "/avatars/2.svg" },
+  { id: U(3), name: "Eleanor Cho", role: "partner" as const, avatarUrl: "/avatars/3.svg" },
+  { id: U(4), name: "Diego Hernández", role: "associate" as const, avatarUrl: "/avatars/4.svg" },
+  { id: U(5), name: "Priya Shah", role: "associate" as const, avatarUrl: "/avatars/5.svg" },
+  { id: U(6), name: "Marcus Bell", role: "associate" as const, avatarUrl: "/avatars/6.svg" },
 ];
 
 const executiveRows = [

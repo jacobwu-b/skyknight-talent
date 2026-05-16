@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Aiko Tanaka — Partner -->
+  <circle cx="60" cy="60" r="60" fill="#4f46e5"/>
+  <!-- Hair back -->
+  <ellipse cx="60" cy="42" rx="32" ry="28" fill="#1a1a2e"/>
+  <!-- Face -->
+  <ellipse cx="60" cy="66" rx="26" ry="28" fill="#FDDBB4"/>
+  <!-- Hair front — straight black with blunt fringe -->
+  <rect x="28" y="28" width="64" height="22" rx="4" fill="#1a1a2e"/>
+  <rect x="28" y="44" width="12" height="18" rx="3" fill="#1a1a2e"/>
+  <rect x="80" y="44" width="12" height="18" rx="3" fill="#1a1a2e"/>
+  <!-- Eyes -->
+  <ellipse cx="48" cy="60" rx="7" ry="8" fill="white"/>
+  <ellipse cx="72" cy="60" rx="7" ry="8" fill="white"/>
+  <circle cx="49" cy="61" r="5" fill="#1a1a2e"/>
+  <circle cx="73" cy="61" r="5" fill="#1a1a2e"/>
+  <circle cx="49" cy="61" r="2.5" fill="#4f46e5"/>
+  <circle cx="73" cy="61" r="2.5" fill="#4f46e5"/>
+  <circle cx="51" cy="59" r="1.5" fill="white"/>
+  <circle cx="75" cy="59" r="1.5" fill="white"/>
+  <!-- Eyebrows -->
+  <path d="M 41 51 Q 48 48 55 51" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M 65 51 Q 72 48 79 51" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Nose -->
+  <ellipse cx="60" cy="71" rx="2" ry="1.5" fill="#e8a580"/>
+  <!-- Mouth — composed expression -->
+  <path d="M 52 79 Q 60 82 68 79" stroke="#c07060" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Blush -->
+  <ellipse cx="42" cy="72" rx="6" ry="3" fill="#ffb3ba" opacity="0.5"/>
+  <ellipse cx="78" cy="72" rx="6" ry="3" fill="#ffb3ba" opacity="0.5"/>
+</svg>
