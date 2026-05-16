@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { getTableConfig } from "drizzle-orm/pg-core";
 import {
   executives,
+  executiveInteractions,
   interactionDirection,
-  interactions,
   pipelineEntries,
   pipelineStage,
   searches,
@@ -92,26 +92,26 @@ describe("pipeline_entries table", () => {
   });
 });
 
-describe("interactions table", () => {
-  const t = getTableConfig(interactions);
-  it("name=interactions", () => expect(t.name).toBe("interactions"));
+describe("executive_interactions table", () => {
+  const t = getTableConfig(executiveInteractions);
+  it("name=executive_interactions", () => expect(t.name).toBe("executive_interactions"));
   it("has unique index on postmark_message_id (spec 0006 idempotency)", () => {
     const idx = t.indexes.find(
-      (i) => i.config.name === "interactions_postmark_message_id_unique",
+      (i) => i.config.name === "executive_interactions_postmark_message_id_unique",
     );
     expect(idx?.config.unique).toBe(true);
   });
   it("indexes (executive_id, occurred_at) for history view", () => {
     expect(
       t.indexes.find(
-        (i) => i.config.name === "interactions_executive_occurred_at_idx",
+        (i) => i.config.name === "executive_interactions_executive_occurred_at_idx",
       ),
     ).toBeDefined();
   });
   it("indexes the 14-day duplicate-window query columns", () => {
     expect(
       t.indexes.find(
-        (i) => i.config.name === "interactions_duplicate_window_idx",
+        (i) => i.config.name === "executive_interactions_duplicate_window_idx",
       ),
     ).toBeDefined();
   });
