@@ -237,9 +237,9 @@ Earlier parallelism:
 
 ## Totals
 
-- **18 units** across 6 milestones (within the 10–25 MVP cap)
+- **17 units** across 6 milestones (within the 10–25 MVP cap)
 - **10 specs**
-- **3 Significant** units (U0.1, U0.3, U3.1, U4.1 — note: 4, all justified by schema/security/integration blast radius)
+- **4 Significant** units (U0.1, U0.3, U3.1, U4.1 — all justified by schema/security/integration blast radius)
 - **complexity:opus** on 4 units (U0.1, U0.3, U3.1, U4.1); **complexity:haiku** on 2 (U2.3, U5.3); default on the rest
 
 ## Top risks
