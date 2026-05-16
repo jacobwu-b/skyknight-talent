@@ -1,0 +1,98 @@
+# CI — required checks for every PR.
+#
+# These job names must match the required status checks configured in
+# .github/repo-settings.md. If you rename a job, update branch protection.
+#
+# Replace the `run:` commands with your stack's tooling. The job structure
+# (lint, types, test, build, evals) is the contract — keep all five.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel superseded runs on the same branch — saves CI minutes during
+# rapid agent iteration.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up toolchain
+        run: echo "TODO — install your runtime"
+      - name: Install
+        run: echo "TODO — install deps from lockfile, fail on drift"
+      - name: Lint
+        run: echo "TODO — your lint command"
+
+  types:
+    name: Types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up toolchain
+        run: echo "TODO"
+      - name: Install
+        run: echo "TODO"
+      - name: Typecheck
+        run: echo "TODO — your typecheck command"
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up toolchain
+        run: echo "TODO"
+      - name: Install
+        run: echo "TODO"
+      - name: Test
+        run: echo "TODO — your test command"
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up toolchain
+        run: echo "TODO"
+      - name: Install
+        run: echo "TODO"
+      - name: Build
+        run: echo "TODO — your build command"
+
+  # Evals: regression suite for the AI agent. PRs that regress evals don't merge.
+  # Disable this job until you have ≥20 eval tasks in evals/tasks/ (see brief, Pillar 5).
+  evals:
+    name: Evals
+    runs-on: ubuntu-latest
+    if: false # flip to `true` once evals/tasks/ has ≥20 tasks
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run evals
+        run: echo "TODO — your eval runner"
+
+  # Secret scan — defence in depth. GitHub also scans on push, but this
+  # blocks the merge if the push scan was bypassed.
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

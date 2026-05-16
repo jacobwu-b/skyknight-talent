@@ -1,0 +1,30 @@
+name: Feature
+description: A new capability or behavior change
+labels: ["feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Whose problem, and what's the cost of not fixing it. Not a solution.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: What does success look like, observable from the outside?
+    validations:
+      required: true
+  - type: input
+    id: spec
+    attributes:
+      label: Spec
+      description: Link to docs/specs/<file>.md, or "to be written" with assignee.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Constraints, prior art, open questions. Optional.

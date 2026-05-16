@@ -1,0 +1,34 @@
+name: Bug
+description: Something is broken or behaves incorrectly
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What's wrong
+      description: One paragraph. The actual behavior, not the imagined cause.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Steps. Smallest possible. Include data and env if relevant.
+      placeholder: |
+        1.
+        2.
+        3.
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+  - type: textarea
+    id: blast
+    attributes:
+      label: Blast radius
+      description: Who/what is affected. P0 = production data loss or outage.
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Logs, screenshots, suspicions. Optional.
