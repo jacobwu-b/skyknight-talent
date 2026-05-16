@@ -18,10 +18,10 @@ Read it before every session. Rules are not suggestions.
 
 ## 1. Project Context
 
-- **What:** [one sentence]
+- **What:** Single source of truth for SkyKnight's executive search pipeline; generates Monday digest and enforces comp confidentiality between Partners and Associates.
 - **Spec:** `docs/specs/` — read the relevant spec before any feature work
-- **Stack:** [language] / [framework] / [database] / [hosting]
-- **Commands:** test=`X` lint=`Y` typecheck=`Z` build=`W`
+- **Stack:** N/A — pending companion architecture design document (mentioned in PRD §10)
+- **Commands:** N/A — pending stack decision
 
 ---
 
@@ -109,14 +109,14 @@ If a risk surfaces mid-implementation that wasn't in the plan: stop and report. 
 
 Violating any of these requires written approval *before* the code is written.
 
-- **Data access:** [where queries live, ORM/client conventions]
-- **External calls:** [location, auth, error contract]
-- **State:** [client/server boundary, state library policy]
-- **Configuration:** all env vars read from [config path]; nowhere else. New env vars → `.env.example` entry in same PR. No secrets in code, comments, or logs.
-- **Schema:** any persistent schema change ships with a migration in the same PR. No exceptions.
+- **Data access:** N/A — pending stack decision
+- **External calls:** Email ingestion via BCC'd mailbox (inbound), Microsoft Entra SSO (login), DealCloud CSV export (quarterly, manual trigger). Auth via SSO mandatory. All traffic over TLS.
+- **State:** N/A — pending stack decision
+- **Configuration:** all env vars read from `[config path — TBD]`; nowhere else. New env vars → `.env.example` entry in same PR. No secrets in code, comments, or logs. Database URL, SSO credentials, email service credentials required.
+- **Schema:** any persistent schema change ships with a migration in the same PR. No exceptions. Core objects per PRD: Executives, Searches, Pipeline Entries, Interactions.
 - **Dependencies:** new deps and version bumps require approval (name, version, justification, why existing deps don't solve it, weekly downloads, last publish). Major bumps need changelog review. Lockfile drift from main without explanation is stop-and-report.
 - **Logging:** project logger only — no `console.log`/`print` in committed code. Never catch without logging or re-raising. Never swallow an error to pass a test.
-- **Soft-delete:** [policy] — no hard deletes where soft-delete applies.
+- **Soft-delete:** TBD — PRD §10 opens whether "Passed" Pipeline Entries are archived or deleted. Recommend soft-delete for audit trail. Finalize in architecture design doc.
 
 ---
 
@@ -197,8 +197,8 @@ Where things live. If you're creating something new, check here first — there'
 |---|---|---|
 | `CLAUDE.md` | This file. Operating system for the agent. | — |
 | `README.md` | Human-facing project overview. | — |
-| `docs/specs/` | Source of truth for features. Spec before code. | `_TEMPLATE.md` |
-| `docs/decisions/` | ADRs. One file per architectural decision. | `_TEMPLATE.md` |
+| `docs/specs/` | Source of truth for features. Spec before code. The PRD is `PRD.md`; specs drill into features and acceptance criteria. | `_TEMPLATE.md` |
+| `docs/decisions/` | ADRs. One file per architectural decision. ADR-0001 covers operating model; architecture design doc pending. | `_TEMPLATE.md` |
 | `docs/plans/` | Significant-tier plans, saved before implementation. | `_TEMPLATE.md` |
 | `.github/PULL_REQUEST_TEMPLATE.md` | Auto-loaded into every PR. Fill every section. | — |
 | `.github/ISSUE_TEMPLATE/` | Bug, tech debt, and feature issue forms. | — |
@@ -206,7 +206,7 @@ Where things live. If you're creating something new, check here first — there'
 | `.github/repo-settings.md` | GitHub settings every new repo must mirror. | — |
 | `.claude/skills/` | Domain skills loaded on demand. Keep small. | `_TEMPLATE/` |
 | `.claude/hooks/` | Deterministic guardrails. Format, lint, danger checks. | — |
-| `evals/tasks/` | Real failures captured as agent regression tests. | `_TEMPLATE.md` |
+| `evals/tasks/` | Real failures captured as agent regression tests. High priority: Comp access control breaches (PRD §6.4). | `_TEMPLATE.md` |
 | `scripts/` | Repeatable maintenance scripts (setup, etc.). | — |
 | `.env.example` | Every env var the app reads. New var → update this in same PR. | — |
 

@@ -26,48 +26,60 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Set up toolchain
-        run: echo "TODO — install your runtime"
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
       - name: Install
-        run: echo "TODO — install deps from lockfile, fail on drift"
+        run: npm ci
       - name: Lint
-        run: echo "TODO — your lint command"
+        run: npm run lint
 
   types:
     name: Types
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Set up toolchain
-        run: echo "TODO"
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
       - name: Install
-        run: echo "TODO"
+        run: npm ci
       - name: Typecheck
-        run: echo "TODO — your typecheck command"
+        run: npm run typecheck
 
   test:
     name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Set up toolchain
-        run: echo "TODO"
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
       - name: Install
-        run: echo "TODO"
+        run: npm ci
       - name: Test
-        run: echo "TODO — your test command"
+        run: npm run test
 
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Set up toolchain
-        run: echo "TODO"
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
       - name: Install
-        run: echo "TODO"
+        run: npm ci
       - name: Build
-        run: echo "TODO — your build command"
+        run: npm run build
 
   # Evals: regression suite for the AI agent. PRs that regress evals don't merge.
   # Disable this job until you have ≥20 eval tasks in evals/tasks/ (see brief, Pillar 5).
