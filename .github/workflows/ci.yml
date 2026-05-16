@@ -2,9 +2,6 @@
 #
 # These job names must match the required status checks configured in
 # .github/repo-settings.md. If you rename a job, update branch protection.
-#
-# Replace the `run:` commands with your stack's tooling. The job structure
-# (lint, types, test, build, evals) is the contract — keep all five.
 
 name: CI
 
@@ -25,61 +22,76 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
       - name: Install
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Lint
-        run: npm run lint
+        run: pnpm lint
 
   types:
     name: Types
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
       - name: Install
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Typecheck
-        run: npm run typecheck
+        run: pnpm typecheck
 
   test:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
       - name: Install
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Test
-        run: npm run test
+        run: pnpm test
 
   build:
     name: Build
     runs-on: ubuntu-latest
+    env:
+      APP_URL: https://example.com
+      DATABASE_URL: postgres://x:x@localhost:5432/x
+      SESSION_SECRET: "00000000000000000000000000000000"
+      POSTMARK_SERVER_TOKEN: dummy
+      POSTMARK_INBOUND_WEBHOOK_SECRET: dummy
+      CRON_SECRET: dummy
     steps:
-      - uses: actions/checkout@v6
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
       - name: Install
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Build
-        run: npm run build
+        run: pnpm build
 
   # Evals: regression suite for the AI agent. PRs that regress evals don't merge.
   # Disable this job until you have ≥20 eval tasks in evals/tasks/ (see brief, Pillar 5).
@@ -88,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     if: false # flip to `true` once evals/tasks/ has ≥20 tasks
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - name: Run evals
         run: echo "TODO — your eval runner"
 
@@ -101,7 +113,7 @@ jobs:
       contents: read
       pull-requests: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: gitleaks

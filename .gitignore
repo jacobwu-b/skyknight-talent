@@ -46,3 +46,7 @@ vendor/
 # Local agent state — never commit
 .claude/local/
 .claude/sessions/
+next-env.d.ts
+tsconfig.tsbuildinfo
+.next/
+
