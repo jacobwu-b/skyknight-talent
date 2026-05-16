@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node -e \"console.log('Dev server command pending stack finalization')\"",
-    "test": "node --test 'tests/**/*.test.js'",
+    "test": "node --test tests/*.test.js",
     "lint": "echo \"Lint command pending stack finalization\"",
     "typecheck": "echo \"Typecheck command pending stack finalization (TypeScript TBD)\"",
     "build": "echo \"Build command pending stack finalization\""
