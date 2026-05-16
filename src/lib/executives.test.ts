@@ -10,6 +10,7 @@ import {
   createExecutive,
   updateExecutive,
   searchExecutives,
+  listInteractionsForExecutive,
 } from "./executives";
 import { getDb } from "./db";
 
@@ -317,5 +318,129 @@ describe("searchExecutives", () => {
     await searchExecutives("ceo");
 
     expect(chain.limit).toHaveBeenCalledWith(50);
+  });
+});
+
+const EXEC_ID = "00000000-0000-4000-8000-000000000001";
+
+function makeInteractionChain(resolveValue: unknown) {
+  const p = Promise.resolve(resolveValue);
+  const chain: Record<string, unknown> = {
+    select: vi.fn(() => chain),
+    from: vi.fn(() => chain),
+    leftJoin: vi.fn(() => chain),
+    where: vi.fn(() => chain),
+    orderBy: vi.fn(() => chain),
+    limit: vi.fn(() => p),
+    then: p.then.bind(p),
+    catch: p.catch.bind(p),
+    finally: p.finally.bind(p),
+  };
+  return chain;
+}
+
+const BASE_INTERACTION = {
+  id: "00000000-0000-4000-8000-000000000020",
+  direction: "inbound" as const,
+  occurredAt: new Date("2024-04-01T09:00:00Z"),
+  subject: "Intro call follow-up",
+  bodyExcerpt: "Great speaking with you...",
+  senderId: "00000000-0000-4000-8000-000000000003",
+  senderName: "Jane Partner",
+};
+
+describe("listInteractionsForExecutive", () => {
+  it("returns interactions in reverse-chronological order", async () => {
+    const older = {
+      ...BASE_INTERACTION,
+      id: "00000000-0000-4000-8000-000000000021",
+      occurredAt: new Date("2024-03-15T08:00:00Z"),
+      subject: "Initial outreach",
+    };
+    const chain = makeInteractionChain([BASE_INTERACTION, older]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const { interactions } = await listInteractionsForExecutive(EXEC_ID, 50);
+
+    expect(interactions).toHaveLength(2);
+    expect(interactions[0].subject).toBe("Intro call follow-up");
+    expect(chain.orderBy).toHaveBeenCalled();
+  });
+
+  it("returns empty list with hasMore false when no interactions exist", async () => {
+    const chain = makeInteractionChain([]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const result = await listInteractionsForExecutive(EXEC_ID, 50);
+
+    expect(result.interactions).toEqual([]);
+    expect(result.hasMore).toBe(false);
+  });
+
+  it("caps results at the requested limit and sets hasMore true when more exist", async () => {
+    const rows = Array.from({ length: 3 }, (_, i) => ({
+      ...BASE_INTERACTION,
+      id: `00000000-0000-4000-8000-00000000002${i}`,
+      occurredAt: new Date(`2024-04-0${i + 1}T09:00:00Z`),
+    }));
+    // Simulate DB returning limit+1 rows (3 rows when limit=2)
+    const chain = makeInteractionChain(rows);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const result = await listInteractionsForExecutive(EXEC_ID, 2);
+
+    expect(result.interactions).toHaveLength(2);
+    expect(result.hasMore).toBe(true);
+  });
+
+  it("sets hasMore false when results are exactly at the limit", async () => {
+    const rows = Array.from({ length: 2 }, (_, i) => ({
+      ...BASE_INTERACTION,
+      id: `00000000-0000-4000-8000-00000000002${i}`,
+    }));
+    const chain = makeInteractionChain(rows);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const result = await listInteractionsForExecutive(EXEC_ID, 2);
+
+    expect(result.interactions).toHaveLength(2);
+    expect(result.hasMore).toBe(false);
+  });
+
+  it("includes direction, subject, excerpt, and sender name on each row", async () => {
+    const chain = makeInteractionChain([BASE_INTERACTION]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const { interactions } = await listInteractionsForExecutive(EXEC_ID, 50);
+    const row = interactions[0];
+
+    expect(row.direction).toBe("inbound");
+    expect(row.subject).toBe("Intro call follow-up");
+    expect(row.bodyExcerpt).toBe("Great speaking with you...");
+    expect(row.senderName).toBe("Jane Partner");
+  });
+
+  it("handles interactions with no sender (null senderId)", async () => {
+    const noSender = {
+      ...BASE_INTERACTION,
+      senderId: null,
+      senderName: null,
+    };
+    const chain = makeInteractionChain([noSender]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const { interactions } = await listInteractionsForExecutive(EXEC_ID, 50);
+
+    expect(interactions[0].senderId).toBeNull();
+    expect(interactions[0].senderName).toBeNull();
+  });
+
+  it("requests limit+1 rows from the database to detect hasMore", async () => {
+    const chain = makeInteractionChain([]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    await listInteractionsForExecutive(EXEC_ID, 50);
+
+    expect(chain.limit).toHaveBeenCalledWith(51);
   });
 });
