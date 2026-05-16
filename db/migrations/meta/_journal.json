@@ -8,6 +8,13 @@
       "when": 1778909184351,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778956784161,
+      "tag": "0001_skinny_domino",
+      "breakpoints": true
     }
   ]
 }

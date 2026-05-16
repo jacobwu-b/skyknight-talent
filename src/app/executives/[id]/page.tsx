@@ -29,6 +29,9 @@ export default async function ExecutiveDetailPage({
         <div className="user-chip">
           <span>{user.name}</span>
           <span className={`role-badge ${user.role}`}>{user.role}</span>
+          <Link href={`/executives/${exec.id}/edit`} className="btn-outline">
+            Edit
+          </Link>
         </div>
       </div>
 
@@ -70,6 +73,20 @@ export default async function ExecutiveDetailPage({
             <div className="field-row">
               <dt>Current Role</dt>
               <dd>{exec.currentRole ?? <span className="muted">—</span>}</dd>
+            </div>
+            <div className="field-row">
+              <dt>Tags</dt>
+              <dd>
+                {exec.tags.length > 0 ? (
+                  <span className="tag-list">
+                    {exec.tags.map((tag) => (
+                      <span key={tag} className="tag-chip">{tag}</span>
+                    ))}
+                  </span>
+                ) : (
+                  <span className="muted">—</span>
+                )}
+              </dd>
             </div>
           </dl>
         </section>
