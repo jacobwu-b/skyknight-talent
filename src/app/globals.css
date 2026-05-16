@@ -221,3 +221,215 @@ body {
   color: var(--text-muted);
   font-size: 0.9rem;
 }
+
+/* ── Navigation links ── */
+.nav-list {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.nav-card {
+  display: block;
+  padding: 1rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: border-color 0.1s, background 0.1s;
+}
+
+.nav-card:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+.back-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.1s;
+  white-space: nowrap;
+}
+
+.back-link:hover {
+  color: var(--text);
+}
+
+/* ── Data table ── */
+.list-meta {
+  margin-bottom: 1rem;
+}
+
+.list-count {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 0.6rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover td {
+  background: var(--surface-hover);
+}
+
+.row-link {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.row-link:hover {
+  color: var(--accent);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.empty-state {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.pagination-btn {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.875rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: border-color 0.1s, background 0.1s;
+}
+
+.pagination-btn:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+.pagination-info {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* ── Executive detail ── */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+}
+
+.detail-card--full {
+  grid-column: 1 / -1;
+}
+
+.detail-card--placeholder {
+  opacity: 0.6;
+}
+
+.section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.field-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.field-row dt {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.field-row dd {
+  color: var(--text);
+  word-break: break-word;
+}
+
+.external-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.external-link:hover {
+  text-decoration: underline;
+}
+
+.notes-text {
+  font-size: 0.9rem;
+  color: var(--text);
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.placeholder-text {
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.detail-timestamps {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}

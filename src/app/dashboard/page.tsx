@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getSessionUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +30,10 @@ export default async function DashboardPage() {
           manage the executive search pipeline.
         </p>
       </div>
+
+      <nav className="nav-list">
+        <Link href="/executives" className="nav-card">Executives →</Link>
+      </nav>
     </div>
   );
 }
