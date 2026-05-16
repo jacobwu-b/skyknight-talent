@@ -11,7 +11,10 @@ import {
   createPipelineEntry,
   updatePipelineEntryStage,
   updatePipelineEntryOwner,
+  groupPipelineEntriesByStage,
+  PIPELINE_STAGES,
 } from "./pipeline";
+import type { PipelineEntryRow } from "./pipeline";
 import { getDb } from "./db";
 
 const mockGetDb = vi.mocked(getDb);
@@ -245,6 +248,65 @@ describe("updatePipelineEntryStage", () => {
     );
 
     expect(result).toEqual({ ok: false, error: "not_found" });
+  });
+});
+
+describe("groupPipelineEntriesByStage", () => {
+  function makeEntry(id: string, stage: PipelineEntryRow["stage"]): PipelineEntryRow {
+    return {
+      id,
+      stage,
+      executiveId: EXEC_ID,
+      executiveName: "Alice Chen",
+      executiveCurrentRole: "CFO",
+      ownerId: OWNER_ID,
+      ownerName: "Jane Partner",
+      ownerRole: "partner",
+      createdAt: new Date("2024-03-01T10:00:00Z"),
+      updatedAt: new Date("2024-03-01T10:00:00Z"),
+    };
+  }
+
+  it("returns empty array when there are no entries", () => {
+    expect(groupPipelineEntriesByStage([])).toEqual([]);
+  });
+
+  it("groups entries by stage and omits stages with no entries", () => {
+    const entries = [
+      makeEntry("e1", "identified"),
+      makeEntry("e2", "screening"),
+      makeEntry("e3", "identified"),
+    ];
+    const groups = groupPipelineEntriesByStage(entries);
+    expect(groups).toHaveLength(2);
+    expect(groups[0].stage).toBe("identified");
+    expect(groups[0].entries).toHaveLength(2);
+    expect(groups[1].stage).toBe("screening");
+    expect(groups[1].entries).toHaveLength(1);
+  });
+
+  it("orders groups by the canonical PIPELINE_STAGES order, not insertion order", () => {
+    const entries = [
+      makeEntry("e1", "offer"),
+      makeEntry("e2", "contacted"),
+      makeEntry("e3", "identified"),
+    ];
+    const groups = groupPipelineEntriesByStage(entries);
+    const stageOrder = groups.map((g) => g.stage);
+    expect(stageOrder).toEqual(["identified", "contacted", "offer"]);
+  });
+
+  it("includes the human-readable label for each stage", () => {
+    const entries = [makeEntry("e1", "partner_interview")];
+    const groups = groupPipelineEntriesByStage(entries);
+    expect(groups[0].label).toBe("Partner Interview");
+  });
+
+  it("can represent all pipeline stages when entries exist for each", () => {
+    const entries = PIPELINE_STAGES.map((stage, i) => makeEntry(`e${i}`, stage));
+    const groups = groupPipelineEntriesByStage(entries);
+    expect(groups).toHaveLength(PIPELINE_STAGES.length);
+    expect(groups.map((g) => g.stage)).toEqual([...PIPELINE_STAGES]);
   });
 });
 

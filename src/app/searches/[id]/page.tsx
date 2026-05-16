@@ -6,6 +6,7 @@ import {
   listPipelineEntriesForSearch,
   listUsersForOwnerSelect,
   listAllExecutives,
+  groupPipelineEntriesByStage,
   PIPELINE_STAGES,
   PIPELINE_STAGE_LABELS,
 } from "@/lib/pipeline";
@@ -58,6 +59,7 @@ export default async function SearchDetailPage({
     ? (PIPELINE_ERROR_MESSAGES[pipeline_error] ?? "An error occurred.")
     : null;
 
+  const grouped = groupPipelineEntriesByStage(entries);
   const addAction = addExecutiveToPipelineAction.bind(null, id);
 
   return (
@@ -168,88 +170,97 @@ export default async function SearchDetailPage({
             </form>
           )}
 
-          {entries.length === 0 ? (
+          {grouped.length === 0 ? (
             <div className="empty-state" style={{ marginTop: "1rem" }}>
               <p className="muted">No candidates in this pipeline yet.</p>
             </div>
           ) : (
-            <div style={{ marginTop: "1.25rem", overflowX: "auto" }}>
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Executive</th>
-                    <th>Stage</th>
-                    <th>Owner</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {entries.map((entry) => {
-                    const stageAction = updatePipelineStageAction.bind(
-                      null,
-                      entry.id,
-                      id,
-                    );
-                    const ownerAction = updatePipelineOwnerAction.bind(
-                      null,
-                      entry.id,
-                      id,
-                    );
-                    return (
-                      <tr key={entry.id}>
-                        <td>
-                          <Link
-                            href={`/executives/${entry.executiveId}`}
-                            className="row-link"
-                          >
-                            {entry.executiveName}
-                          </Link>
-                          {entry.executiveCurrentRole && (
-                            <span className="muted" style={{ marginLeft: "0.5rem" }}>
-                              {entry.executiveCurrentRole}
-                            </span>
-                          )}
-                        </td>
-                        <td>
-                          <form action={stageAction} className="inline-form">
-                            <select
-                              name="stage"
-                              defaultValue={entry.stage}
-                              className="select-input select-input--sm"
-                            >
-                              {PIPELINE_STAGES.map((s) => (
-                                <option key={s} value={s}>
-                                  {PIPELINE_STAGE_LABELS[s]}
-                                </option>
-                              ))}
-                            </select>
-                            <button type="submit" className="btn-outline btn--sm">
-                              Save
-                            </button>
-                          </form>
-                        </td>
-                        <td>
-                          <form action={ownerAction} className="inline-form">
-                            <select
-                              name="ownerId"
-                              defaultValue={entry.ownerId}
-                              className="select-input select-input--sm"
-                            >
-                              {allUsers.map((u) => (
-                                <option key={u.id} value={u.id}>
-                                  {u.name}
-                                </option>
-                              ))}
-                            </select>
-                            <button type="submit" className="btn-outline btn--sm">
-                              Save
-                            </button>
-                          </form>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div style={{ marginTop: "1.25rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              {grouped.map(({ stage, label, entries: stageEntries }) => (
+                <div key={stage}>
+                  <h3 className="pipeline-stage-heading">{label}</h3>
+                  <div style={{ overflowX: "auto" }}>
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>Executive</th>
+                          <th>Owner</th>
+                          <th>Last Contact</th>
+                          <th>Move Stage</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {stageEntries.map((entry) => {
+                          const stageAction = updatePipelineStageAction.bind(
+                            null,
+                            entry.id,
+                            id,
+                          );
+                          const ownerAction = updatePipelineOwnerAction.bind(
+                            null,
+                            entry.id,
+                            id,
+                          );
+                          return (
+                            <tr key={entry.id}>
+                              <td>
+                                <Link
+                                  href={`/executives/${entry.executiveId}`}
+                                  className="row-link"
+                                >
+                                  {entry.executiveName}
+                                </Link>
+                                {entry.executiveCurrentRole && (
+                                  <span className="muted" style={{ marginLeft: "0.5rem" }}>
+                                    {entry.executiveCurrentRole}
+                                  </span>
+                                )}
+                              </td>
+                              <td>
+                                <form action={ownerAction} className="inline-form">
+                                  <select
+                                    name="ownerId"
+                                    defaultValue={entry.ownerId}
+                                    className="select-input select-input--sm"
+                                  >
+                                    {allUsers.map((u) => (
+                                      <option key={u.id} value={u.id}>
+                                        {u.name}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <button type="submit" className="btn-outline btn--sm">
+                                    Save
+                                  </button>
+                                </form>
+                              </td>
+                              <td className="muted">—</td>
+                              <td>
+                                <form action={stageAction} className="inline-form">
+                                  <select
+                                    name="stage"
+                                    defaultValue={entry.stage}
+                                    className="select-input select-input--sm"
+                                  >
+                                    {PIPELINE_STAGES.map((s) => (
+                                      <option key={s} value={s}>
+                                        {PIPELINE_STAGE_LABELS[s]}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <button type="submit" className="btn-outline btn--sm">
+                                    Save
+                                  </button>
+                                </form>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </section>
