@@ -4,11 +4,11 @@
   "description": "Single source of truth for executive search pipeline, automatic Monday digest, comp confidentiality enforcement",
   "type": "module",
   "scripts": {
-    "dev": "TODO — dev server command",
-    "test": "TODO — test command",
-    "lint": "TODO — lint command",
-    "typecheck": "TODO — typecheck command",
-    "build": "TODO — build command"
+    "dev": "node -e \"console.log('Dev server command pending stack finalization')\"",
+    "test": "node --test 'tests/**/*.test.js'",
+    "lint": "echo \"Lint command pending stack finalization\"",
+    "typecheck": "echo \"Typecheck command pending stack finalization (TypeScript TBD)\"",
+    "build": "echo \"Build command pending stack finalization\""
   },
   "keywords": [
     "executive-search",
