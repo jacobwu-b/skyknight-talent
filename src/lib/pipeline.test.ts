@@ -11,10 +11,11 @@ import {
   createPipelineEntry,
   updatePipelineEntryStage,
   updatePipelineEntryOwner,
+  updatePipelineEntryComp,
   groupPipelineEntriesByStage,
   PIPELINE_STAGES,
 } from "./pipeline";
-import type { PipelineEntryRow } from "./pipeline";
+import type { PipelineEntryRow, PartnerPipelineEntryRow } from "./pipeline";
 import { getDb } from "./db";
 
 const mockGetDb = vi.mocked(getDb);
@@ -117,26 +118,28 @@ describe("listUsersForOwnerSelect", () => {
   });
 });
 
+const BASE_ROW = {
+  id: ENTRY_ID,
+  stage: "identified" as const,
+  executiveId: EXEC_ID,
+  executiveName: "Alice Chen",
+  executiveCurrentRole: "CFO",
+  ownerId: OWNER_ID,
+  ownerName: "Jane Partner",
+  ownerRole: "partner" as const,
+  createdAt: new Date("2024-03-01T10:00:00Z"),
+  updatedAt: new Date("2024-03-01T10:00:00Z"),
+  baseSalaryCents: 35000000,
+  targetBonusCents: 5000000,
+  equityBps: 150,
+};
+
 describe("listPipelineEntriesForSearch", () => {
-  it("returns joined rows for the given search", async () => {
-    const rows = [
-      {
-        id: ENTRY_ID,
-        stage: "identified",
-        executiveId: EXEC_ID,
-        executiveName: "Alice Chen",
-        executiveCurrentRole: "CFO",
-        ownerId: OWNER_ID,
-        ownerName: "Jane Partner",
-        ownerRole: "partner",
-        createdAt: new Date("2024-03-01T10:00:00Z"),
-        updatedAt: new Date("2024-03-01T10:00:00Z"),
-      },
-    ];
-    const chain = makeSelectChain(rows);
+  it("returns joined rows for the given search (partner)", async () => {
+    const chain = makeSelectChain([BASE_ROW]);
     mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
 
-    const result = await listPipelineEntriesForSearch(SEARCH_ID);
+    const result = await listPipelineEntriesForSearch(SEARCH_ID, "partner");
 
     expect(result).toHaveLength(1);
     expect(result[0].executiveName).toBe("Alice Chen");
@@ -144,11 +147,47 @@ describe("listPipelineEntriesForSearch", () => {
     expect(chain.where).toHaveBeenCalled();
   });
 
+  it("partner response includes all three comp fields with their values", async () => {
+    const chain = makeSelectChain([BASE_ROW]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const result = await listPipelineEntriesForSearch(SEARCH_ID, "partner");
+    const entry = result[0] as PartnerPipelineEntryRow;
+
+    expect(entry.baseSalaryCents).toBe(35000000);
+    expect(entry.targetBonusCents).toBe(5000000);
+    expect(entry.equityBps).toBe(150);
+  });
+
+  it("associate response omits comp keys entirely — not nulled", async () => {
+    const chain = makeSelectChain([BASE_ROW]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const result = await listPipelineEntriesForSearch(SEARCH_ID, "associate");
+    const entry = result[0];
+
+    expect("baseSalaryCents" in entry).toBe(false);
+    expect("targetBonusCents" in entry).toBe(false);
+    expect("equityBps" in entry).toBe(false);
+  });
+
+  it("associate response contains no trace of known comp fixture values in serialised form", async () => {
+    const chain = makeSelectChain([BASE_ROW]);
+    mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
+
+    const result = await listPipelineEntriesForSearch(SEARCH_ID, "associate");
+    const serialised = JSON.stringify(result);
+
+    expect(serialised).not.toContain("35000000");
+    expect(serialised).not.toContain("5000000");
+    expect(serialised).not.toContain("150");
+  });
+
   it("returns empty array when search has no pipeline entries", async () => {
     const chain = makeSelectChain([]);
     mockGetDb.mockReturnValue({ select: vi.fn(() => chain) } as never);
 
-    const result = await listPipelineEntriesForSearch(SEARCH_ID);
+    const result = await listPipelineEntriesForSearch(SEARCH_ID, "partner");
 
     expect(result).toEqual([]);
   });
@@ -330,6 +369,67 @@ describe("updatePipelineEntryOwner", () => {
     const result = await updatePipelineEntryOwner(
       "00000000-0000-4000-8000-000000000099",
       OTHER_OWNER_ID,
+    );
+
+    expect(result).toEqual({ ok: false, error: "not_found" });
+  });
+});
+
+describe("updatePipelineEntryComp", () => {
+  it("updates all three comp fields and returns ok", async () => {
+    const updateChain = makeUpdateChain([{ id: ENTRY_ID }]);
+    mockGetDb.mockReturnValue({ update: vi.fn(() => updateChain) } as never);
+
+    const result = await updatePipelineEntryComp(ENTRY_ID, {
+      baseSalaryCents: 35000000,
+      targetBonusCents: 5000000,
+      equityBps: 150,
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(updateChain.set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        baseSalaryCents: 35000000,
+        targetBonusCents: 5000000,
+        equityBps: 150,
+      }),
+    );
+  });
+
+  it("allows partial updates (only some comp fields provided)", async () => {
+    const updateChain = makeUpdateChain([{ id: ENTRY_ID }]);
+    mockGetDb.mockReturnValue({ update: vi.fn(() => updateChain) } as never);
+
+    const result = await updatePipelineEntryComp(ENTRY_ID, {
+      baseSalaryCents: 40000000,
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(updateChain.set).toHaveBeenCalledWith(
+      expect.objectContaining({ baseSalaryCents: 40000000 }),
+    );
+  });
+
+  it("allows nulling comp fields to clear previously set values", async () => {
+    const updateChain = makeUpdateChain([{ id: ENTRY_ID }]);
+    mockGetDb.mockReturnValue({ update: vi.fn(() => updateChain) } as never);
+
+    const result = await updatePipelineEntryComp(ENTRY_ID, {
+      baseSalaryCents: null,
+      targetBonusCents: null,
+      equityBps: null,
+    });
+
+    expect(result).toEqual({ ok: true });
+  });
+
+  it("returns not_found when no entry matches the id", async () => {
+    const updateChain = makeUpdateChain([]);
+    mockGetDb.mockReturnValue({ update: vi.fn(() => updateChain) } as never);
+
+    const result = await updatePipelineEntryComp(
+      "00000000-0000-4000-8000-000000000099",
+      { baseSalaryCents: 35000000 },
     );
 
     expect(result).toEqual({ ok: false, error: "not_found" });

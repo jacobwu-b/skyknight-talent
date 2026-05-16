@@ -2,6 +2,13 @@ import { asc, eq, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { executives, pipelineEntries, users } from "./db/schema";
 
+// Comp fields — present only in partner-role responses (spec 0005 / ADR-0003).
+export type CompFields = {
+  baseSalaryCents: number | null;
+  targetBonusCents: number | null;
+  equityBps: number | null;
+};
+
 export const PIPELINE_STAGES = [
   "identified",
   "contacted",
@@ -38,6 +45,11 @@ export type PipelineEntryRow = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+// Extends PipelineEntryRow with comp fields — only returned when requestingRole is "partner".
+export type PartnerPipelineEntryRow = PipelineEntryRow & CompFields;
+
+export type UpdatePipelineEntryCompInput = Partial<CompFields>;
 
 export type OwnerOption = {
   id: string;
@@ -87,7 +99,8 @@ export async function listUsersForOwnerSelect(): Promise<OwnerOption[]> {
 
 export async function listPipelineEntriesForSearch(
   searchId: string,
-): Promise<PipelineEntryRow[]> {
+  requestingRole: "partner" | "associate",
+): Promise<PartnerPipelineEntryRow[] | PipelineEntryRow[]> {
   const db = getDb();
   const rows = await db
     .select({
@@ -101,13 +114,27 @@ export async function listPipelineEntriesForSearch(
       ownerRole: users.role,
       createdAt: pipelineEntries.createdAt,
       updatedAt: pipelineEntries.updatedAt,
+      baseSalaryCents: pipelineEntries.baseSalaryCents,
+      targetBonusCents: pipelineEntries.targetBonusCents,
+      equityBps: pipelineEntries.equityBps,
     })
     .from(pipelineEntries)
     .innerJoin(executives, eq(pipelineEntries.executiveId, executives.id))
     .innerJoin(users, eq(pipelineEntries.ownerId, users.id))
     .where(eq(pipelineEntries.searchId, searchId))
     .orderBy(asc(pipelineEntries.stage), asc(pipelineEntries.createdAt));
-  return rows as PipelineEntryRow[];
+
+  if (requestingRole === "partner") {
+    return rows as PartnerPipelineEntryRow[];
+  }
+  return rows.map(redactComp);
+}
+
+// Omits comp keys entirely — does not null them (spec 0005).
+function redactComp(row: PartnerPipelineEntryRow): PipelineEntryRow {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { baseSalaryCents, targetBonusCents, equityBps, ...rest } = row;
+  return rest;
 }
 
 export async function createPipelineEntry(
@@ -155,6 +182,20 @@ export async function updatePipelineEntryOwner(
   const rows = await db
     .update(pipelineEntries)
     .set({ ownerId, updatedAt: new Date() })
+    .where(eq(pipelineEntries.id, id))
+    .returning({ id: pipelineEntries.id });
+  if (rows.length === 0) return { ok: false, error: "not_found" };
+  return { ok: true };
+}
+
+export async function updatePipelineEntryComp(
+  id: string,
+  comp: UpdatePipelineEntryCompInput,
+): Promise<UpdatePipelineEntryResult> {
+  const db = getDb();
+  const rows = await db
+    .update(pipelineEntries)
+    .set({ ...comp, updatedAt: new Date() })
     .where(eq(pipelineEntries.id, id))
     .returning({ id: pipelineEntries.id });
   if (rows.length === 0) return { ok: false, error: "not_found" };

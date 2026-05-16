@@ -7,6 +7,7 @@ import {
   createPipelineEntry,
   updatePipelineEntryStage,
   updatePipelineEntryOwner,
+  updatePipelineEntryComp,
   PIPELINE_STAGES,
 } from "@/lib/pipeline";
 
@@ -90,6 +91,52 @@ export async function updatePipelineOwnerAction(
   }
 
   const result = await updatePipelineEntryOwner(entryId, parsed.data.ownerId);
+  if (!result.ok) {
+    redirect(`/searches/${searchId}?pipeline_error=entry_not_found`);
+  }
+
+  redirect(`/searches/${searchId}`);
+}
+
+// Dollars submitted by the form; stored as cents in the DB.
+function dollarsToCents(raw: string | null): number | null | undefined {
+  if (raw === null || raw === "") return undefined;
+  const n = parseFloat(raw);
+  return isNaN(n) ? undefined : Math.round(n * 100);
+}
+
+function parseBps(raw: string | null): number | null | undefined {
+  if (raw === null || raw === "") return undefined;
+  const n = parseInt(raw, 10);
+  return isNaN(n) ? undefined : n;
+}
+
+export async function updatePipelineCompAction(
+  entryId: string,
+  searchId: string,
+  formData: FormData,
+): Promise<void> {
+  const user = await getSessionUser();
+  if (!user) redirect("/");
+  if (user.role !== "partner") {
+    redirect(`/searches/${searchId}?pipeline_error=forbidden`);
+  }
+
+  const baseSalaryCents = dollarsToCents(formData.get("baseSalaryCents") as string | null);
+  const targetBonusCents = dollarsToCents(formData.get("targetBonusCents") as string | null);
+  const equityBps = parseBps(formData.get("equityBps") as string | null);
+
+  const comp = Object.fromEntries(
+    Object.entries({ baseSalaryCents, targetBonusCents, equityBps }).filter(
+      ([, v]) => v !== undefined,
+    ),
+  ) as { baseSalaryCents?: number | null; targetBonusCents?: number | null; equityBps?: number | null };
+
+  if (Object.keys(comp).length === 0) {
+    redirect(`/searches/${searchId}`);
+  }
+
+  const result = await updatePipelineEntryComp(entryId, comp);
   if (!result.ok) {
     redirect(`/searches/${searchId}?pipeline_error=entry_not_found`);
   }

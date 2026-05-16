@@ -10,10 +10,12 @@ import {
   PIPELINE_STAGES,
   PIPELINE_STAGE_LABELS,
 } from "@/lib/pipeline";
+import type { PartnerPipelineEntryRow } from "@/lib/pipeline";
 import {
   addExecutiveToPipelineAction,
   updatePipelineStageAction,
   updatePipelineOwnerAction,
+  updatePipelineCompAction,
 } from "./pipeline/actions";
 
 export const dynamic = "force-dynamic";
@@ -47,7 +49,7 @@ export default async function SearchDetailPage({
 
   const [search, entries, allUsers, allExecutives] = await Promise.all([
     getSearch(id),
-    listPipelineEntriesForSearch(id),
+    listPipelineEntriesForSearch(id, user.role),
     listUsersForOwnerSelect(),
     listAllExecutives(),
   ]);
@@ -55,6 +57,7 @@ export default async function SearchDetailPage({
   if (!search) notFound();
 
   const isFilled = search.status === "filled";
+  const isPartner = user.role === "partner";
   const pipelineError = pipeline_error
     ? (PIPELINE_ERROR_MESSAGES[pipeline_error] ?? "An error occurred.")
     : null;
@@ -186,6 +189,9 @@ export default async function SearchDetailPage({
                           <th>Executive</th>
                           <th>Owner</th>
                           <th>Last Contact</th>
+                          {isPartner && <th>Base Salary</th>}
+                          {isPartner && <th>Target Bonus</th>}
+                          {isPartner && <th>Equity</th>}
                           <th>Move Stage</th>
                         </tr>
                       </thead>
@@ -201,6 +207,14 @@ export default async function SearchDetailPage({
                             entry.id,
                             id,
                           );
+                          const compAction = updatePipelineCompAction.bind(
+                            null,
+                            entry.id,
+                            id,
+                          );
+                          const partnerEntry = isPartner
+                            ? (entry as PartnerPipelineEntryRow)
+                            : null;
                           return (
                             <tr key={entry.id}>
                               <td>
@@ -235,6 +249,54 @@ export default async function SearchDetailPage({
                                 </form>
                               </td>
                               <td className="muted">—</td>
+                              {isPartner && partnerEntry && (
+                                <td colSpan={3}>
+                                  <form action={compAction} className="inline-form">
+                                    <input
+                                      type="number"
+                                      name="baseSalaryCents"
+                                      placeholder="Base ($)"
+                                      defaultValue={
+                                        partnerEntry.baseSalaryCents != null
+                                          ? partnerEntry.baseSalaryCents / 100
+                                          : ""
+                                      }
+                                      className="form-input"
+                                      style={{ width: "7rem" }}
+                                      min={0}
+                                      step={1000}
+                                    />
+                                    <input
+                                      type="number"
+                                      name="targetBonusCents"
+                                      placeholder="Bonus ($)"
+                                      defaultValue={
+                                        partnerEntry.targetBonusCents != null
+                                          ? partnerEntry.targetBonusCents / 100
+                                          : ""
+                                      }
+                                      className="form-input"
+                                      style={{ width: "7rem" }}
+                                      min={0}
+                                      step={1000}
+                                    />
+                                    <input
+                                      type="number"
+                                      name="equityBps"
+                                      placeholder="Equity (bps)"
+                                      defaultValue={partnerEntry.equityBps ?? ""}
+                                      className="form-input"
+                                      style={{ width: "7rem" }}
+                                      min={0}
+                                      max={10000}
+                                      step={1}
+                                    />
+                                    <button type="submit" className="btn-outline btn--sm">
+                                      Save Comp
+                                    </button>
+                                  </form>
+                                </td>
+                              )}
                               <td>
                                 <form action={stageAction} className="inline-form">
                                   <select
