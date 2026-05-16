@@ -20,8 +20,8 @@ Read it before every session. Rules are not suggestions.
 
 - **What:** Single source of truth for SkyKnight's executive search pipeline; generates Monday digest and enforces comp confidentiality between Partners and Associates.
 - **Spec:** `docs/specs/` — read the relevant spec before any feature work
-- **Stack:** N/A — pending companion architecture design document (mentioned in PRD §10)
-- **Commands:** N/A — pending stack decision
+- **Stack:** TypeScript + Next.js (App Router) on Vercel; Supabase Postgres via Drizzle ORM; Vercel Cron for scheduled jobs; Postmark Inbound + Transactional for email; Vercel env vars for secrets. See ADR-0002.
+- **Commands:** `pnpm dev` | `pnpm test` | `pnpm lint` | `pnpm typecheck` | `pnpm build`
 
 ---
 
@@ -109,10 +109,10 @@ If a risk surfaces mid-implementation that wasn't in the plan: stop and report. 
 
 Violating any of these requires written approval *before* the code is written.
 
-- **Data access:** N/A — pending stack decision
-- **External calls:** Email ingestion via BCC'd mailbox (inbound), Microsoft Entra SSO (login), DealCloud CSV export (quarterly, manual trigger). Auth via SSO mandatory. All traffic over TLS.
-- **State:** N/A — pending stack decision
-- **Configuration:** all env vars read from `[config path — TBD]`; nowhere else. New env vars → `.env.example` entry in same PR. No secrets in code, comments, or logs. Database URL, SSO credentials, email service credentials required.
+- **Data access:** all persistent reads/writes go through Drizzle in a server-side data layer (server components, route handlers, server actions). No direct SQL in UI code; no client-side DB access.
+- **External calls:** Inbound email via Postmark webhook → `/api/inbound` (signature verified, message-ID idempotent). Outbound email via Postmark Transactional. Auth for MVP is a simulated profile picker (spec 0001 / ADR-0002); real Entra SSO deferred post-MVP. DealCloud CSV export is a manual quarterly trigger. All traffic over TLS.
+- **State:** stateless Next.js on Vercel; durable state in Supabase Postgres only. Session = signed cookie carrying the simulated profile id (spec 0001). No in-memory caches that outlive a request.
+- **Configuration:** all env vars read from `src/lib/env.ts` (single Zod-validated module); nowhere else. New env vars → `.env.example` entry in same PR. No secrets in code, comments, or logs. Required: `DATABASE_URL`, `POSTMARK_SERVER_TOKEN`, `POSTMARK_INBOUND_WEBHOOK_SECRET`, `SESSION_SECRET`, `APP_URL`.
 - **Schema:** any persistent schema change ships with a migration in the same PR. No exceptions. Core objects per PRD: Executives, Searches, Pipeline Entries, Interactions.
 - **Dependencies:** new deps and version bumps require approval (name, version, justification, why existing deps don't solve it, weekly downloads, last publish). Major bumps need changelog review. Lockfile drift from main without explanation is stop-and-report.
 - **Logging:** project logger only — no `console.log`/`print` in committed code. Never catch without logging or re-raising. Never swallow an error to pass a test.

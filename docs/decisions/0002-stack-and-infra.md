@@ -1,6 +1,6 @@
 # ADR-0002: Stack and infrastructure for the MVP
 
-> Status: proposed
+> Status: accepted
 > Date: 2026-05-15
 > Deciders: @jacobwu-b
 
@@ -29,7 +29,7 @@ The team has no in-house DevOps engineer, so a Heroku-style "git push and forget
 We will use the following stack:
 
 - **Framework:** Next.js (App Router) with TypeScript. Single deployable handling UI, API routes, and scheduled jobs.
-- **Database:** Postgres on a managed provider (Neon or Supabase) — both offer point-in-time backup and meet PRD §7 backup requirements out of the box.
+- **Database:** Supabase Postgres — managed, with point-in-time backup and 30-day retention meeting PRD §7 out of the box.
 - **Hosting:** Vercel for the Next.js app. Free or Pro tier covers the MVP scale.
 - **Scheduled jobs:** Vercel Cron for the Monday digest (spec 0008).
 - **Inbound email:** Postmark Inbound Streams (webhook to `/api/inbound`). Postmark's signature scheme and idempotent message IDs are straightforward and well-documented.
@@ -47,7 +47,7 @@ The simulated profile picker (spec 0001) means we do **not** need an SSO integra
 - Postmark handles both inbound and outbound, keeping vendors minimal.
 
 **Negative**
-- Vercel + Neon/Supabase are commercial managed services with recurring cost; small at MVP scale but real.
+- Vercel + Supabase are commercial managed services with recurring cost; small at MVP scale but real.
 - Vercel Cron has limited observability; Monday digest reliability depends on it. Mitigation in spec 0008 (manual "send now" admin button as recovery).
 - Drizzle is less mature than Prisma; chosen for TS-first ergonomics and lighter footprint.
 
@@ -70,7 +70,7 @@ Avoids a third-party inbound vendor. Rejected — polling IMAP is fragile, hard 
 
 ### D: Postgres-on-Vercel (Vercel Postgres)
 
-Considered but Neon and Supabase have richer free tiers and more mature point-in-time backup. We will revisit if pricing becomes a concern.
+Considered but Supabase has a richer free tier and more mature point-in-time backup. We will revisit if pricing becomes a concern.
 
 ## References
 
