@@ -15,6 +15,13 @@
       "when": 1778956784161,
       "tag": "0001_skinny_domino",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778968041484,
+      "tag": "0002_even_lethal_legion",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { executives, pipelineEntries, searches, users } from "./db/schema";
 
@@ -159,6 +159,28 @@ function redactExecComp(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { baseSalaryCents, targetBonusCents, equityBps, ...rest } = row;
   return rest;
+}
+
+// Open = stages other than terminal (`placed`, `passed`). Used by the inbound
+// ingestion path to attach Interactions to every live entry for an executive.
+// Returns ids only — no comp fields cross this boundary.
+export async function listOpenPipelineEntryIdsForExecutive(
+  executiveId: string,
+): Promise<string[]> {
+  const db = getDb();
+  const openStages = PIPELINE_STAGES.filter(
+    (s) => s !== "placed" && s !== "passed",
+  );
+  const rows = await db
+    .select({ id: pipelineEntries.id })
+    .from(pipelineEntries)
+    .where(
+      and(
+        eq(pipelineEntries.executiveId, executiveId),
+        inArray(pipelineEntries.stage, openStages),
+      ),
+    );
+  return rows.map((r) => r.id);
 }
 
 export async function listSearchEntriesForExecutive(
