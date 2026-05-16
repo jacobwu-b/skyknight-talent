@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Marcus Bell — Associate -->
+  <circle cx="60" cy="60" r="60" fill="#d97706"/>
+  <!-- Hair back -->
+  <ellipse cx="60" cy="42" rx="28" ry="24" fill="#1a1a2e"/>
+  <!-- Face -->
+  <ellipse cx="60" cy="67" rx="25" ry="27" fill="#8D5524"/>
+  <!-- Hair — short close-cropped fade -->
+  <path d="M 34 46 Q 36 24 60 22 Q 84 24 86 46 Q 78 38 60 36 Q 42 38 34 46 Z" fill="#1a1a2e"/>
+  <path d="M 34 46 Q 32 54 34 58" stroke="#1a1a2e" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M 86 46 Q 88 54 86 58" stroke="#1a1a2e" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <!-- Eyes — friendly open -->
+  <ellipse cx="48" cy="61" rx="7.5" ry="8" fill="white"/>
+  <ellipse cx="72" cy="61" rx="7.5" ry="8" fill="white"/>
+  <circle cx="49" cy="62" r="5.5" fill="#1a1a2e"/>
+  <circle cx="73" cy="62" r="5.5" fill="#1a1a2e"/>
+  <circle cx="49" cy="62" r="2.5" fill="#d97706"/>
+  <circle cx="73" cy="62" r="2.5" fill="#d97706"/>
+  <circle cx="51" cy="60" r="1.5" fill="white"/>
+  <circle cx="75" cy="60" r="1.5" fill="white"/>
+  <!-- Eyebrows — relaxed -->
+  <path d="M 41 52 Q 48 49 55 52" stroke="#1a1a2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M 65 52 Q 72 49 79 52" stroke="#1a1a2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Nose -->
+  <path d="M 56 71 Q 60 75 64 71" stroke="#6b3a1f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- Mouth — warm friendly smile showing teeth -->
+  <path d="M 50 80 Q 60 88 70 80" stroke="#6b3a1f" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M 53 81 Q 60 86 67 81" fill="white" stroke="none"/>
+  <!-- Blush -->
+  <ellipse cx="41" cy="72" rx="6" ry="3" fill="#ffb3ba" opacity="0.4"/>
+  <ellipse cx="79" cy="72" rx="6" ry="3" fill="#ffb3ba" opacity="0.4"/>
+</svg>

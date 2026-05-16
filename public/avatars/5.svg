@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Priya Shah — Associate -->
+  <circle cx="60" cy="60" r="60" fill="#db2777"/>
+  <!-- Hair back — long dark flowing -->
+  <ellipse cx="60" cy="44" rx="31" ry="28" fill="#2d1b00"/>
+  <rect x="28" y="52" width="12" height="40" rx="6" fill="#2d1b00"/>
+  <rect x="80" y="52" width="12" height="40" rx="6" fill="#2d1b00"/>
+  <!-- Face -->
+  <ellipse cx="60" cy="67" rx="25" ry="27" fill="#c68642"/>
+  <!-- Hair front — center part, flowing -->
+  <path d="M 34 44 Q 42 20 60 22 Q 78 20 86 44 Q 72 36 60 38 Q 48 36 34 44 Z" fill="#2d1b00"/>
+  <path d="M 34 44 Q 30 56 32 68" stroke="#2d1b00" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M 86 44 Q 90 56 88 68" stroke="#2d1b00" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <!-- Bindi -->
+  <circle cx="60" cy="50" r="2.5" fill="#db2777"/>
+  <!-- Eyes — large bright -->
+  <ellipse cx="48" cy="62" rx="7.5" ry="8" fill="white"/>
+  <ellipse cx="72" cy="62" rx="7.5" ry="8" fill="white"/>
+  <circle cx="49" cy="63" r="5.5" fill="#1a1a2e"/>
+  <circle cx="73" cy="63" r="5.5" fill="#1a1a2e"/>
+  <circle cx="49" cy="63" r="2.5" fill="#db2777"/>
+  <circle cx="73" cy="63" r="2.5" fill="#db2777"/>
+  <circle cx="51" cy="61" r="1.5" fill="white"/>
+  <circle cx="75" cy="61" r="1.5" fill="white"/>
+  <!-- Eyebrows -->
+  <path d="M 41 53 Q 48 50 55 53" stroke="#2d1b00" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M 65 53 Q 72 50 79 53" stroke="#2d1b00" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Nose -->
+  <ellipse cx="60" cy="72" rx="2" ry="1.5" fill="#a06030"/>
+  <!-- Mouth — warm smile -->
+  <path d="M 51 80 Q 60 86 69 80" stroke="#8b4030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Blush -->
+  <ellipse cx="41" cy="73" rx="6" ry="3" fill="#ffb3ba" opacity="0.5"/>
+  <ellipse cx="79" cy="73" rx="6" ry="3" fill="#ffb3ba" opacity="0.5"/>
+</svg>
