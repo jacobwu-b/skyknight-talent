@@ -15,7 +15,7 @@ CREATE TABLE "executives" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "interactions" (
+CREATE TABLE "executive_interactions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"executive_id" uuid NOT NULL,
 	"pipeline_entry_id" uuid,
@@ -62,9 +62,9 @@ CREATE TABLE "users" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "interactions" ADD CONSTRAINT "interactions_executive_id_executives_id_fk" FOREIGN KEY ("executive_id") REFERENCES "public"."executives"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "interactions" ADD CONSTRAINT "interactions_pipeline_entry_id_pipeline_entries_id_fk" FOREIGN KEY ("pipeline_entry_id") REFERENCES "public"."pipeline_entries"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "interactions" ADD CONSTRAINT "interactions_sender_id_users_id_fk" FOREIGN KEY ("sender_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "executive_interactions" ADD CONSTRAINT "executive_interactions_executive_id_executives_id_fk" FOREIGN KEY ("executive_id") REFERENCES "public"."executives"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "executive_interactions" ADD CONSTRAINT "executive_interactions_pipeline_entry_id_pipeline_entries_id_fk" FOREIGN KEY ("pipeline_entry_id") REFERENCES "public"."pipeline_entries"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "executive_interactions" ADD CONSTRAINT "executive_interactions_sender_id_users_id_fk" FOREIGN KEY ("sender_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "pipeline_entries" ADD CONSTRAINT "pipeline_entries_executive_id_executives_id_fk" FOREIGN KEY ("executive_id") REFERENCES "public"."executives"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "pipeline_entries" ADD CONSTRAINT "pipeline_entries_search_id_searches_id_fk" FOREIGN KEY ("search_id") REFERENCES "public"."searches"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "pipeline_entries" ADD CONSTRAINT "pipeline_entries_owner_id_users_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -72,10 +72,10 @@ CREATE UNIQUE INDEX "executives_email_unique" ON "executives" USING btree ("emai
 CREATE INDEX "executives_updated_at_idx" ON "executives" USING btree ("updated_at" DESC NULLS LAST);--> statement-breakpoint
 CREATE INDEX "executives_name_trgm_idx" ON "executives" USING gin ("name" gin_trgm_ops);--> statement-breakpoint
 CREATE INDEX "executives_current_role_trgm_idx" ON "executives" USING gin ("current_role" gin_trgm_ops);--> statement-breakpoint
-CREATE UNIQUE INDEX "interactions_postmark_message_id_unique" ON "interactions" USING btree ("postmark_message_id");--> statement-breakpoint
-CREATE INDEX "interactions_executive_occurred_at_idx" ON "interactions" USING btree ("executive_id","occurred_at" DESC NULLS LAST);--> statement-breakpoint
-CREATE INDEX "interactions_pipeline_entry_occurred_at_idx" ON "interactions" USING btree ("pipeline_entry_id","occurred_at" DESC NULLS LAST);--> statement-breakpoint
-CREATE INDEX "interactions_duplicate_window_idx" ON "interactions" USING btree ("executive_id","sender_role","occurred_at");--> statement-breakpoint
+CREATE UNIQUE INDEX "executive_interactions_postmark_message_id_unique" ON "executive_interactions" USING btree ("postmark_message_id");--> statement-breakpoint
+CREATE INDEX "executive_interactions_executive_occurred_at_idx" ON "executive_interactions" USING btree ("executive_id","occurred_at" DESC NULLS LAST);--> statement-breakpoint
+CREATE INDEX "executive_interactions_pipeline_entry_occurred_at_idx" ON "executive_interactions" USING btree ("pipeline_entry_id","occurred_at" DESC NULLS LAST);--> statement-breakpoint
+CREATE INDEX "executive_interactions_duplicate_window_idx" ON "executive_interactions" USING btree ("executive_id","sender_role","occurred_at");--> statement-breakpoint
 CREATE UNIQUE INDEX "pipeline_entries_open_unique" ON "pipeline_entries" USING btree ("executive_id","search_id") WHERE stage NOT IN ('placed', 'passed');--> statement-breakpoint
 CREATE INDEX "pipeline_entries_search_stage_idx" ON "pipeline_entries" USING btree ("search_id","stage");--> statement-breakpoint
 CREATE INDEX "pipeline_entries_executive_idx" ON "pipeline_entries" USING btree ("executive_id");--> statement-breakpoint

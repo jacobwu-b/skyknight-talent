@@ -137,8 +137,8 @@ export const pipelineEntries = pgTable(
   ],
 );
 
-export const interactions = pgTable(
-  "interactions",
+export const executiveInteractions = pgTable(
+  "executive_interactions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     executiveId: uuid("executive_id")
@@ -161,18 +161,18 @@ export const interactions = pgTable(
       .defaultNow(),
   },
   (t) => [
-    uniqueIndex("interactions_postmark_message_id_unique").on(
+    uniqueIndex("executive_interactions_postmark_message_id_unique").on(
       t.postmarkMessageId,
     ),
-    index("interactions_executive_occurred_at_idx").on(
+    index("executive_interactions_executive_occurred_at_idx").on(
       t.executiveId,
       t.occurredAt.desc(),
     ),
-    index("interactions_pipeline_entry_occurred_at_idx").on(
+    index("executive_interactions_pipeline_entry_occurred_at_idx").on(
       t.pipelineEntryId,
       t.occurredAt.desc(),
     ),
-    index("interactions_duplicate_window_idx").on(
+    index("executive_interactions_duplicate_window_idx").on(
       t.executiveId,
       t.senderRole,
       t.occurredAt,

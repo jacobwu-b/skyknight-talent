@@ -3,7 +3,7 @@ import postgres from "postgres";
 import { env } from "../src/lib/env";
 import {
   executives,
-  interactions,
+  executiveInteractions,
   pipelineEntries,
   searches,
   users,
@@ -131,7 +131,7 @@ async function main() {
   await db.insert(executives).values(executiveRows).onConflictDoNothing();
   await db.insert(searches).values(searchRows).onConflictDoNothing();
   await db.insert(pipelineEntries).values(pipelineRows).onConflictDoNothing();
-  await db.insert(interactions).values(interactionRows).onConflictDoNothing();
+  await db.insert(executiveInteractions).values(interactionRows).onConflictDoNothing();
 
   await client.end();
   console.log(

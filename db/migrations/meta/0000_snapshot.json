@@ -135,8 +135,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.interactions": {
-      "name": "interactions",
+    "public.executive_interactions": {
+      "name": "executive_interactions",
       "schema": "",
       "columns": {
         "id": {
@@ -217,8 +217,8 @@
         }
       },
       "indexes": {
-        "interactions_postmark_message_id_unique": {
-          "name": "interactions_postmark_message_id_unique",
+        "executive_interactions_postmark_message_id_unique": {
+          "name": "executive_interactions_postmark_message_id_unique",
           "columns": [
             {
               "expression": "postmark_message_id",
@@ -232,8 +232,8 @@
           "method": "btree",
           "with": {}
         },
-        "interactions_executive_occurred_at_idx": {
-          "name": "interactions_executive_occurred_at_idx",
+        "executive_interactions_executive_occurred_at_idx": {
+          "name": "executive_interactions_executive_occurred_at_idx",
           "columns": [
             {
               "expression": "executive_id",
@@ -253,8 +253,8 @@
           "method": "btree",
           "with": {}
         },
-        "interactions_pipeline_entry_occurred_at_idx": {
-          "name": "interactions_pipeline_entry_occurred_at_idx",
+        "executive_interactions_pipeline_entry_occurred_at_idx": {
+          "name": "executive_interactions_pipeline_entry_occurred_at_idx",
           "columns": [
             {
               "expression": "pipeline_entry_id",
@@ -274,8 +274,8 @@
           "method": "btree",
           "with": {}
         },
-        "interactions_duplicate_window_idx": {
-          "name": "interactions_duplicate_window_idx",
+        "executive_interactions_duplicate_window_idx": {
+          "name": "executive_interactions_duplicate_window_idx",
           "columns": [
             {
               "expression": "executive_id",
@@ -303,9 +303,9 @@
         }
       },
       "foreignKeys": {
-        "interactions_executive_id_executives_id_fk": {
-          "name": "interactions_executive_id_executives_id_fk",
-          "tableFrom": "interactions",
+        "executive_interactions_executive_id_executives_id_fk": {
+          "name": "executive_interactions_executive_id_executives_id_fk",
+          "tableFrom": "executive_interactions",
           "tableTo": "executives",
           "columnsFrom": [
             "executive_id"
@@ -316,9 +316,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "interactions_pipeline_entry_id_pipeline_entries_id_fk": {
-          "name": "interactions_pipeline_entry_id_pipeline_entries_id_fk",
-          "tableFrom": "interactions",
+        "executive_interactions_pipeline_entry_id_pipeline_entries_id_fk": {
+          "name": "executive_interactions_pipeline_entry_id_pipeline_entries_id_fk",
+          "tableFrom": "executive_interactions",
           "tableTo": "pipeline_entries",
           "columnsFrom": [
             "pipeline_entry_id"
@@ -329,9 +329,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "interactions_sender_id_users_id_fk": {
-          "name": "interactions_sender_id_users_id_fk",
-          "tableFrom": "interactions",
+        "executive_interactions_sender_id_users_id_fk": {
+          "name": "executive_interactions_sender_id_users_id_fk",
+          "tableFrom": "executive_interactions",
           "tableTo": "users",
           "columnsFrom": [
             "sender_id"

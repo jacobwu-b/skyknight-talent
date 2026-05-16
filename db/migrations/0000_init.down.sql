@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS "interactions" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "executive_interactions" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "pipeline_entries" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "searches" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "executives" CASCADE;--> statement-breakpoint
