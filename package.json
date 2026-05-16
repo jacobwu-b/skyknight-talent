@@ -1,0 +1,23 @@
+{
+  "name": "skyknight-talent",
+  "version": "0.0.1",
+  "description": "Single source of truth for executive search pipeline, automatic Monday digest, comp confidentiality enforcement",
+  "type": "module",
+  "scripts": {
+    "dev": "TODO — dev server command",
+    "test": "TODO — test command",
+    "lint": "TODO — lint command",
+    "typecheck": "TODO — typecheck command",
+    "build": "TODO — build command"
+  },
+  "keywords": [
+    "executive-search",
+    "talent",
+    "pipeline",
+    "skyknightcapital"
+  ],
+  "author": "SkyKnight Portfolio Operations",
+  "license": "SEE LICENSE IN LICENSE",
+  "devDependencies": {},
+  "dependencies": {}
+}
